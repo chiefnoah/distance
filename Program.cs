@@ -39,7 +39,7 @@ namespace Distance
             root.Right.Right.Left.Key = 8;
             string input = "";
             while(input.ToLower() != "q") {
-                Console.WriteLine("Enter a node # 0-8:");
+                Console.WriteLine("Enter a node # 0-8 or q to quit:");
                 input = Console.ReadLine();
                 int id1;
                 int id2;
@@ -48,7 +48,7 @@ namespace Distance
                     Console.WriteLine("ERROR: please enter a number 0-8");
                     continue;
                 }
-                Console.WriteLine("Enter another node # 0-8:");
+                Console.WriteLine("Enter a node # 0-8 or q to quit:");
                 input = Console.ReadLine();
                 success = Int32.TryParse(input, out id2);
                 if (!success) {
