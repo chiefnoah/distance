@@ -18,6 +18,7 @@ namespace Distance
 
         public static void Main()
         {
+            //See diagram for what this tree looks like 🙂
             Node root = new Node();
             root.Key = 0;
             root.Left = new Node();
@@ -26,21 +27,43 @@ namespace Distance
             root.Left.Key = 1;
             root.Left.Left = new Node();
             root.Left.Left.Key = 2;
-            root.Left.Left.Right = new Node();
-            root.Left.Left.Right.Key = 3;
+            root.Left.Right = new Node();
+            root.Left.Right.Key = 3;
             root.Right.Left = new Node();
             root.Right.Left.Key = 5;
             root.Right.Left.Left = new Node();
             root.Right.Left.Left.Key = 6;
             root.Right.Right = new Node();
-            root.Right.Right.Key = 8;
+            root.Right.Right.Key = 7;
             root.Right.Right.Left = new Node();
-            root.Right.Right.Left.Key = 7;
-            Console.WriteLine("Distance: {0}", FindDistance(root, 1, 7));
-            Console.WriteLine("Press enter to continue...");
-            Console.ReadLine();
+            root.Right.Right.Left.Key = 8;
+            string input = "";
+            while(input.ToLower() != "q") {
+                Console.WriteLine("Enter a node # 0-8:");
+                input = Console.ReadLine();
+                int id1;
+                int id2;
+                bool success = Int32.TryParse(input, out id1);
+                if (!success) {
+                    Console.WriteLine("ERROR: please enter a number 0-8");
+                    continue;
+                }
+                Console.WriteLine("Enter another node # 0-8:");
+                input = Console.ReadLine();
+                success = Int32.TryParse(input, out id2);
+                if (!success) {
+                    Console.WriteLine("ERROR: please enter a number 0-8");
+                    continue;
+                }
+                Console.WriteLine("Distance: {0}", FindDistance(root, id1, id2));
+                Console.WriteLine("Press enter to continue...");
+                Console.ReadLine();
+            }
         }
 
+        //Searches Tree using Node root for node IDs v1 and v2, returning the
+        //number of edges/distance between them, or -1 if one or more is not
+        //present in the tree
         public static int FindDistance(Node root, int v1, int v2) {
             if (root == null) {
                 throw new ArgumentNullException("Root Node is null");
@@ -102,6 +125,8 @@ namespace Distance
             //part of the path from target node to the root node
             LinkedList<Node> temp1 = new LinkedList<Node>();
             LinkedList<Node> temp2 = new LinkedList<Node>();
+
+            //These two loops should probably be pulled out into a function
             while(p1.Count > 1) {
                 Node current = p1.Pop();
                 Node parent = p1.Peek();
