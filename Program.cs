@@ -7,7 +7,6 @@ namespace Distance
     class Node
     {
         public int Key { get; set; }
-        public bool Visited { get; set; }
         //Supports two children nodes (so a binary tree)
         public Node Left { get; set; }
         public Node Right { get; set; }
@@ -16,23 +15,11 @@ namespace Distance
 
     class Program
     {
+
         public static void Main()
         {
-            const int NODE_SIZE = 0;
-            Random rand = new Random();
             Node root = new Node();
-            root.Key = NODE_SIZE;
-            List<int> values = new List<int>(NODE_SIZE);
-            for (int i = 0; i < NODE_SIZE; i += 2)
-            {
-                Node left = new Node();
-                left.Key = i;
-                Node Right = new Node();
-                Right.Key = i + 1;
-
-            }
-
-
+            root.Key = 0;
             root.Left = new Node();
             root.Right = new Node();
             root.Right.Key = 4;
@@ -50,6 +37,8 @@ namespace Distance
             root.Right.Right.Left = new Node();
             root.Right.Right.Left.Key = 7;
             Console.WriteLine("Distance: {0}", FindDistance(root, 1, 7));
+            Console.WriteLine("Press enter to continue...");
+            Console.ReadLine();
         }
 
         public static int FindDistance(Node root, int v1, int v2) {
@@ -64,27 +53,37 @@ namespace Distance
             path.Push(root);
             Stack<Node> firstFullPath = null;
 
+            //Pretty standard implementation of preorder depth-first search
             while(path.Count > 0) {
                 Node current = path.Peek();
                 if (current == null) {
+                    //How did this get here? There should never be nulls in the stack
                     throw new Exception("This is really broke, how did we get here");
                 }
+                //If we found a node we haven't checked yet and it matches one of the search criteria...
                 if (searchKeys.Contains(current.Key) && !visited.Contains(current.Key)) {
+                    //... and haven't already found one of the search criteria
                     if (firstFullPath == null) {
                         //Create an array of the elements and reverse it to preserve stack order
                         Node[] temp = path.ToArray();
                         Array.Reverse(temp);
+                        //And create a copy of the current stack, for later use
                         firstFullPath = new Stack<Node>(temp);
-                        searchKeys.Remove(current.Key);
+                        //Remove the discovered search key so we don't look for it again
+                        searchKeys.Remove(current.Key); 
                     } else {
+                        //We found the other one!
                         return tracePaths(firstFullPath, path);
                     }
                 }
+                //Does the current node have children that haven't been checked yet? 
                 bool checkLeft = current.Left != null && !visited.Contains(current.Left.Key);
                 bool checkRight = current.Right != null && !visited.Contains(current.Right.Key);
                 if (!checkLeft && !checkRight) {
+                    //No? Remove it from the stack
                     path.Pop();
                 }
+                //Add children nodes to the stack for searching
                 if (checkLeft) {
                     path.Push(current.Left);
                 }
@@ -93,30 +92,60 @@ namespace Distance
                 }
                 visited.Add(current.Key);
             }
+            //This means one or more of the search keys weren't found :(
             return -1;
         }
 
         private static int tracePaths(Stack<Node> p1, Stack<Node> p2) {
+            
+            //Loop through the stacks and remove any sibling nodes that aren't directly
+            //part of the path from target node to the root node
+            LinkedList<Node> temp1 = new LinkedList<Node>();
+            LinkedList<Node> temp2 = new LinkedList<Node>();
+            while(p1.Count > 1) {
+                Node current = p1.Pop();
+                Node parent = p1.Peek();
+                temp1.AddFirst(current); //Add at the beginning of the LL to preserve stack order
+                //If the current node isn't a direct child of the next at the top of the stack
+                //that next node isn't actually part of the path, remove it
+                if (current != parent.Left && current != parent.Right) {
+                    p1.Pop();
+                }
+            }
+            temp1.AddFirst(p1.Pop());
+            while (p2.Count > 1)
+            {
+                Node current = p2.Pop();
+                Node parent = p2.Peek();
+                temp2.AddFirst(current);
+                //If the current node isn't a direct child of the next at the top of the stack
+                //that next node isn't actually part of the path, remove it
+                if (current != parent.Left && current != parent.Right)
+                {
+                    p2.Pop();
+                }
+            }
+            temp2.AddFirst(p2.Pop());
             int count = 0;
-            Stack<Node> longer;
-            Stack<Node> shorter;
-            if(p1.Count > p2.Count) {
-                longer = p1;
-                shorter = p2;
+            LinkedList<Node> longer;
+            LinkedList<Node> shorter;
+            if(temp1.Count > temp2.Count) {
+                longer = temp1;
+                shorter = temp2;
             } else {
-                longer = p2;
-                shorter = p1;
+                longer = temp2;
+                shorter = temp1;
             }
             //Trim the extra values until the stacks are the same length
             while (longer.Count > shorter.Count) {
-                longer.Pop();
+                longer.RemoveLast();
                 count++;
             }
 
             //Pop boths stacks until the nodes at the same level are the the same node
-            while(shorter.Peek() != longer.Peek()) {
-                shorter.Pop();
-                longer.Pop();
+            while(shorter.Last.Value != longer.Last.Value) {
+                shorter.RemoveLast();
+                longer.RemoveLast();
                 count += 2;
             }
 
