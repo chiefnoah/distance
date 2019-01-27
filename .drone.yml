@@ -1,0 +1,9 @@
+kind: pipeline
+name: default
+
+steps:
+  - name: tests
+    image: microsoft/dotnet:2.2-sdk
+    commands:
+    - dotnet build
+    - dotnet test
