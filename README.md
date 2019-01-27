@@ -8,9 +8,15 @@ To use the interactive interface run the following commands:
 ```shell
 git clone https://github.com/chiefnoah/distance.git
 cd distance
+cd Distance
 dotnet run
 ...
 ```
+To execute unit tests run:
+```shell
+dotnet test
+```
+
 
 The predefined tree structure is as follows:
 
